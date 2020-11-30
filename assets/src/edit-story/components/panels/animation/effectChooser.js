@@ -121,7 +121,7 @@ const GridItemHalfRow = styled(GridItem)`
 
 const GridLabel = styled.div`
   grid-column-start: span 4;
-
+  padding-left: 3px;
   span {
     color: ${({ theme }) => theme.colors.fg.white};
     font-weight: 500;
