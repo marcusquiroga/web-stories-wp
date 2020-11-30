@@ -79,7 +79,7 @@ const GridItem = styled.button.attrs({ role: 'listitem' })`
   font-family: 'Teko', sans-serif;
   font-size: 20px;
   line-height: 1;
-  color: white;
+  color: ${({ theme }) => theme.colors.fg.white};
   text-transform: uppercase;
 
   &:disabled {
@@ -119,6 +119,16 @@ const GridItemHalfRow = styled(GridItem)`
   grid-column-start: span 2;
 `;
 
+const GridLabel = styled.div`
+  grid-column-start: span 4;
+
+  span {
+    color: ${({ theme }) => theme.colors.fg.white};
+    font-weight: 500;
+    font-size: 14px;
+  }
+`;
+
 export default function EffectChooser({
   onAnimationSelected,
   onNoEffectSelected,
@@ -137,6 +147,9 @@ export default function EffectChooser({
   return (
     <Container ref={ref}>
       <Grid>
+        <GridLabel>
+          <span>{__('Select Animation', 'web-stories')}</span>
+        </GridLabel>
         <GridItemFullRow
           onClick={onNoEffectSelected}
           aria-label={__('No Effect', 'web-stories')}
