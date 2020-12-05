@@ -37,6 +37,10 @@ import {
 } from '../../../../animation';
 import useFocusOut from '../../../utils/useFocusOut';
 import {
+  SCALE_MAX_VALUE,
+  SCALE_MIN_VALUE,
+} from '../../../../animation/effects/zoom/animationProps';
+import {
   GRID_ITEM_HEIGHT,
   PANEL_WIDTH,
   DropAnimation,
@@ -386,8 +390,8 @@ export default function EffectChooser({
               onClick={() =>
                 onAnimationSelected({
                   animation: ANIMATION_EFFECTS.ZOOM.value,
-                  zoomFrom: 0,
-                  zoomTo: 1,
+                  zoomFrom: SCALE_MIN_VALUE,
+                  zoomTo: SCALE_MAX_VALUE,
                 })
               }
             >
@@ -399,8 +403,8 @@ export default function EffectChooser({
               onClick={() =>
                 onAnimationSelected({
                   animation: ANIMATION_EFFECTS.ZOOM.value,
-                  zoomFrom: 2,
-                  zoomTo: 1,
+                  zoomFrom: SCALE_MAX_VALUE,
+                  zoomTo: SCALE_MIN_VALUE,
                 })
               }
             >
