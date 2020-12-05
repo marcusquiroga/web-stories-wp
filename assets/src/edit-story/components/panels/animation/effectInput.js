@@ -26,11 +26,15 @@ import styled from 'styled-components';
 /**
  * Internal dependencies
  */
-import { FIELD_TYPES } from '../../../../animation';
+import { FIELD_TYPES, SCALE_DIRECTION } from '../../../../animation';
 import { GeneralAnimationPropTypes } from '../../../../animation/outputs';
 import { AnimationFormPropTypes } from '../../../../animation/types';
 import { DropDown, BoxedNumeric } from '../../form';
 import RangeInput from '../../rangeInput';
+import {
+  SCALE_MAX_VALUE,
+  SCALE_MIN_VALUE,
+} from '../../../../animation/effects/zoom/animationProps';
 import { DirectionRadioInput } from './directionRadioInput';
 
 const RangeContainer = styled.div`
@@ -51,18 +55,42 @@ function EffectInput({
   effectConfig,
   field,
   onChange,
+  onMultiChange,
   disabledOptions,
 }) {
   const rangeId = `range-${uuidv4()}`;
   const directionControlOnChange = useCallback(
-    ({ nativeEvent: { target } }) => onChange(target.value, true),
-    [onChange]
+    ({ nativeEvent: { target } }) => {
+      if (
+        target.value === SCALE_DIRECTION.SCALE_IN ||
+        target.value === SCALE_DIRECTION.SCALE_OUT
+      ) {
+        onMultiChange(
+          {
+            zoomFrom:
+              target.value === SCALE_DIRECTION.SCALE_IN
+                ? SCALE_MAX_VALUE
+                : SCALE_MIN_VALUE,
+            zoomTo:
+              target.value === SCALE_DIRECTION.SCALE_IN
+                ? SCALE_MIN_VALUE
+                : SCALE_MAX_VALUE,
+          },
+          true
+        );
+        return;
+      }
+
+      onChange(target.value, true);
+    },
+    [onChange, onMultiChange]
   );
+  let valueForField = effectConfig[field] || effectProps[field].defaultValue;
   switch (effectProps[field].type) {
     case FIELD_TYPES.DROPDOWN:
       return (
         <DropDown
-          value={effectConfig[field] || effectProps[field].defaultValue}
+          value={valueForField}
           onChange={(value) => onChange(value, true)}
           options={effectProps[field].values.map((v) => ({
             value: v,
@@ -77,7 +105,7 @@ function EffectInput({
           <RangeInput
             id={rangeId}
             aria-label={effectProps[field].label}
-            value={effectConfig[field] || effectProps[field].defaultValue}
+            value={valueForField}
             handleChange={(value) => onChange(value, true)}
             minorStep={0.01}
             majorStep={0.1}
@@ -88,9 +116,21 @@ function EffectInput({
         </RangeContainer>
       );
     case FIELD_TYPES.DIRECTION_PICKER:
+      /**
+       * Zoom is implemented with two numeric values: zoomTo and zoomFrom. Visually it is displayed
+       * to the user as a scaleIn or scaleOut picker. This converts the numeric values
+       * to a string-base identifer for the visual picker.
+       */
+      if ('zoomFrom' in effectConfig && 'zoomTo' in effectConfig) {
+        valueForField =
+          effectConfig.zoomFrom < effectConfig.zoomTo
+            ? SCALE_DIRECTION.SCALE_OUT
+            : SCALE_DIRECTION.SCALE_IN;
+      }
+
       return (
         <DirectionRadioInput
-          value={effectConfig[field] || effectProps[field].defaultValue}
+          value={valueForField}
           directions={effectProps[field].values?.filter(
             (v) => !disabledOptions.includes(v)
           )}
@@ -103,7 +143,7 @@ function EffectInput({
           aria-label={effectProps[field].label}
           suffix={effectProps[field].label}
           symbol={effectProps[field].unit}
-          value={effectConfig[field] || effectProps[field].defaultValue}
+          value={valueForField}
           min={0}
           onChange={onChange}
           canBeNegative={false}
@@ -119,6 +159,7 @@ EffectInput.propTypes = {
   effectConfig: PropTypes.shape(GeneralAnimationPropTypes).isRequired,
   field: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
+  onMultiChange: PropTypes.func.isRequired,
   disabledOptions: PropTypes.arrayOf(PropTypes.string),
 };
 

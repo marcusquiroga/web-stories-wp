@@ -112,6 +112,7 @@ function EffectPanel({
         onChange={(value, submitArg) =>
           handleInputChange({ [field]: value }, submitArg)
         }
+        onMultiChange={handleInputChange}
         disabledOptions={disabledTypeOptionsMap[type] || []}
       />
     </AnimationGridField>
